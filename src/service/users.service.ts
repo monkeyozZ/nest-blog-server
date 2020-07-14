@@ -15,11 +15,12 @@ export class UsersService {
     // const loginModel = new this.loginModel(LoginDto);
     // console.log(loginModel)
     const res = await this.loginModel.findOne({username});
-    return res.username
+    if (res) {
+      return res
+    } else {
+      return null
+    }
   }
-  /* async findOne(): Promise<any[]> {
-    return this.loginModel.find().exec();
-  } */
 }
 
 /* @Injectable()

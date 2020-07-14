@@ -1,12 +1,15 @@
+import cryptoJs = require('crypto-js');
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../interface/auth.interface'
-import md5 from 'crypto-js/md5'
 import { type } from 'os';
 type Token = {
-  access_token: string
+  code: number,
+  data: {
+    access_token: string
+  }
 }
 @Injectable()
 export class AuthService {
@@ -17,17 +20,23 @@ export class AuthService {
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(username);
-    if (user && md5(user.password) === password) {
-      const { password, ...result } = user;
+    if (user && user.password === cryptoJs.MD5(password).toString()) {
+      const result = {
+        _id: user._id,
+        username: user.username
+      };
       return result;
     }
     return null;
   }
 
   async login(user: User):Promise<Token>{
-    const payload = { username: user.username, sub: user.id };
+    const payload = { username: user.username, sub: user._id };
     return {
-      access_token: this.jwtService.sign(payload),
+      code: 200,
+      data: {
+        access_token: this.jwtService.sign(payload),
+      }
     };
   }
 }
