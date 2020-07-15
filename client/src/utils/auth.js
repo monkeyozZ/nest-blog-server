@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'rx_admin_token'
+const TokenKey = 'monkey-token'
 
 export function getToken() {
   return Cookies.get(TokenKey)

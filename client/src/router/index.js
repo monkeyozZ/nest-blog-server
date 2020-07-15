@@ -50,7 +50,7 @@ export const constantRoutes = [
     children: [{
       path: 'dashboard',
       name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
+      component: () => import('@/views/index/index'),
       meta: { title: '首页', icon: 'dashboard', affix: true }
     }]
   },
@@ -59,74 +59,55 @@ export const constantRoutes = [
     component: Layout,
     meta: { icon: 'pen', title: '文章管理', hidden: false },
     children: [
-      /* {
+      {
         path: 'index',
         name: 'articleindex',
-        component: LoadComponent('article/index'),
+        component: () => import('@/views/article/index'),
         meta: { title: '文章列表', hidden: false }
-      }, */
+      },
       {
         path: 'save',
         name: 'articleSave',
         component: () => import('@/views/article/save'),
         meta: { title: '发布文章', hidden: false }
-      }
-      /* {
-        path: 'tag',
-        name: 'articletag',
-        component: LoadComponent('article/tag'),
-        meta: { title: '文章标签', hidden: false }
-      } */
-    ]
-  },
-  {
-    path: '/generalize',
-    component: Layout,
-    redirect: '/generalize/page',
-    name: 'Generalize',
-    meta: { title: '推广管理', icon: 'generalize' },
-    children: [
-      {
-        path: 'place',
-        name: 'Place',
-        component: () => import('@/views/generalize/place'),
-        meta: { title: '渠道管理', icon: 'place' }
       },
       {
-        path: 'page',
-        name: 'Page',
-        component: () => import('@/views/generalize/page'),
-        meta: { title: '推广链接', icon: 'page' }
+        path: 'tag',
+        name: 'articletag',
+        component: () => import('@/views/article/tag'),
+        meta: { title: '文章标签', hidden: false }
       }
     ]
   },
   {
-    path: '/supermarket',
+    path: '/comment',
     component: Layout,
-    redirect: '/supermarket/proManage',
-    name: 'Supermarket',
-    meta: { title: '产品管理', icon: 'supermarket' },
-    children: [
-      {
-        path: 'promanage',
-        name: 'ProManage',
-        component: () => import('@/views/supermarket/proManage'),
-        meta: { title: '产品列表', icon: 'promanage' }
-      }
-    ]
-  },
-  {
-    path: '/category',
-    component: Layout,
-    redirect: '/category/index',
-    name: 'Supermarket',
-    meta: { title: '分类管理', icon: 'supermarket' },
+    meta: { icon: 'comment', title: '评论管理', hidden: false },
     children: [
       {
         path: 'index',
-        name: 'Category',
-        component: () => import('@/views/category/index'),
-        meta: { title: '分类列表', icon: 'tree' }
+        name: 'commentindex',
+        component: () => import('@/views/comment/index'),
+        meta: { title: '所有评论', hidden: false }
+      }
+    ]
+  },
+  {
+    path: '/timeline',
+    component: Layout,
+    meta: { icon: 'time', title: '时间轴', hidden: false },
+    children: [
+      {
+        path: 'index',
+        name: 'timelineindex',
+        component: () => import('@/views/time/index'),
+        meta: { title: '时间轴列表', hidden: false }
+      },
+      {
+        path: 'insert',
+        name: 'timelineinsert',
+        component: () => import('@/views/time/insert'),
+        meta: { title: '时间轴续写', hidden: false }
       }
     ]
   },

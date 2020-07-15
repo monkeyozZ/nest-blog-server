@@ -53,15 +53,15 @@
 </template>
 
 <script>
-export default{
+export default {
   data() {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: 'monkey',
+        password: 'hbg19950616'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', message: '请填写账号'}],
+        username: [{ required: true, trigger: 'blur', message: '请填写账号' }],
         password: [{ required: true, trigger: 'blur', message: '请填写密码' }]
       },
       loading: false,
@@ -71,7 +71,7 @@ export default{
   },
   watch: {
     $route: {
-      handler (route) {
+      handler(route) {
         this.redirect = route.query && route.query.redirect
       },
       immediate: true
@@ -91,14 +91,14 @@ export default{
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          // this.loading = true
+          this.loading = true
           this.$router.push({ path: this.redirect || '/' })
-         /*  this.$store.dispatch('user/login', this.loginForm).then(() => {
+          this.$store.dispatch('user/login', this.loginForm).then(() => {
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
           }).catch(() => {
             this.loading = false
-          }) */
+          })
         } else {
           console.log('error submit!!')
           return false

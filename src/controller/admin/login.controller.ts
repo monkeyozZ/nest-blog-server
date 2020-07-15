@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { Controller, Get, Post, Body, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, HttpCode, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from '../../service/auth.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
@@ -9,7 +9,8 @@ export class LoginController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post('auth/login')
+  @Post('login')
+  @HttpCode(200)
   async login(@Request() req) {
     console.log(req.user)
     if (req.user.code === 200) {

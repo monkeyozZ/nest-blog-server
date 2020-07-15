@@ -35,7 +35,7 @@ export class AuthService {
     return {
       code: 200,
       data: {
-        access_token: this.jwtService.sign(payload),
+        access_token: `Bearer ${this.jwtService.sign(payload)}`,
       }
     };
   }

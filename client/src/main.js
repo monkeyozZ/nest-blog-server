@@ -4,13 +4,13 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-/* import locale from 'element-ui/lib/locale/lang/en' // lang i18n*/
 
 /* mdnice */
+// eslint-disable-next-line no-irregular-whitespace
 import { VuePlugin } from 'vuera'
-
-
 import '@/styles/index.scss' // global css
+
+import '@/filters'
 
 import App from './App'
 import store from './store'
