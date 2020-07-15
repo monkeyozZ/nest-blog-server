@@ -23,8 +23,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     }
     return {
       code: 200,
-      ...user,
-      message: '用户名或密码错误'
+      ...user
     };
   }
 }
