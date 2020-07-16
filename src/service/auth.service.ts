@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../interface/auth.interface'
-import { type } from 'os';
 type Token = {
   code: number,
   data: {

@@ -10,7 +10,7 @@
             <el-input v-model="Form.keywords" placeholder="文章关键词" style="width:60%" />
           </el-form-item>
           <el-form-item label="文章描述：" prop="des" :inline-message="true">
-            <el-input v-model="Form.des" type="textarea" placeholder="文章描述" style="width:70%" />
+            <el-input v-model="Form.desc" type="textarea" placeholder="文章描述" style="width:70%" />
           </el-form-item>
           <el-form-item label="文章分类：" prop="category" :inline-message="true">
             <div class="tag-box">
@@ -30,8 +30,8 @@
               </el-checkbox-group>
             </div>
           </el-form-item>
-          <el-form-item label="文章来源：" prop="origin">
-            <el-select v-model="Form.origin" placeholder="请选择">
+          <el-form-item label="文章来源：" prop="source">
+            <el-select v-model="Form.source" placeholder="请选择">
               <el-option
                 v-for="item in origin"
                 :key="item.value"
@@ -101,7 +101,7 @@
 <script>
 import MarkdownNice from 'markdown-nice'
 import axios from 'axios'
-// import articleApi from '@/api/article'
+import { save } from '@/api/article'
 export default {
   components: {
     MarkdownNice
@@ -166,11 +166,11 @@ export default {
       Form: {
         title: '',
         keywords: '',
-        des: '',
+        desc: '',
         category: [],
-        tag: [],
+        tag: ['测试'],
         content: '',
-        origin: '0',
+        source: '0',
         status: true,
         open: true,
         imageUrl: ''
@@ -178,7 +178,7 @@ export default {
       rules: {
         title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
         keywords: [{ required: true, message: '请输入文章关键词', trigger: 'blur' }],
-        des: [{ required: true, message: '请输入文章描述', trigger: 'blur' }],
+        desc: [{ required: true, message: '请输入文章描述', trigger: 'blur' }],
         category: [{ validator: validatecate, trigger: 'blur' }],
         tag: [{ validator: validatetag, trigger: 'blur' }],
         content: [{ required: true, message: '请输入文章内容', trigger: 'blur' }]
@@ -208,7 +208,6 @@ export default {
   },
   mounted() {
     // this.getTagList()
-    // this.refresh()
     const mdNav = document.querySelector('.nice-left-nav')
     const mdOffHeight = document.querySelector('.nice-app').offsetTop
     const headerHeight = document.querySelector('.fixed-header').clientHeight
@@ -236,12 +235,6 @@ export default {
         }
       })
     }, */
-    refresh() {
-      // 页面刷新和关闭提醒事件
-      window.onbeforeunload = function() {
-        return '请确认信息是否已保存！'
-      }
-    },
     imgAdd(pos, file) {
       // console.log(file)
       const formdata = new FormData()
@@ -310,26 +303,31 @@ export default {
         }
       })
     },
+    saveArticle() {
+      this.Form.content = this.$refs.md.$el.innerHTML
+      save(this.Form).then((res) => {
+        if (res.data.code === 0) {
+          this.$notify({
+            type: 'success',
+            title: '成功',
+            message: '文章添加成功'
+          })
+          this.$router.push('/article/index')
+        }
+      }).catch((err) => {
+        this.$notify({
+          type: 'error',
+          title: '失败',
+          message: err
+        })
+      })
+    },
     submit() {
-      this.$refs.dataForm1.validate((valid) => {
+      this.saveArticle()
+      /* this.$refs.dataForm1.validate((valid) => {
         if (valid) {
           if (this.Form.imageUrl) {
-            /* articleApi.insert(JSON.stringify(this.Form)).then((res) => {
-              if (res.data.code === 0) {
-                this.$notify({
-                  type: 'success',
-                  title: '成功',
-                  message: '文章添加成功'
-                })
-                this.$router.push('/article/index')
-              }
-            }).catch((err) => {
-              this.$notify({
-                type: 'error',
-                title: '失败',
-                message: err
-              })
-            }) */
+            this.saveArticle()
           } else {
             this.$notify({
               type: 'warning',
@@ -338,7 +336,7 @@ export default {
             })
           }
         }
-      })
+      }) */
     }
   }
 }

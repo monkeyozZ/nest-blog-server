@@ -8,7 +8,16 @@ content-type: application/json
 
 ###
 
-GET  http://localhost:3000/admin/login HTTP/1.1
+GET  http://localhost:3000/article/login HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1vbmtleSIsInN1YiI6IjViOGY5NjhkZjgzYjNiMjAzODFjY2YxZCIsImlhdCI6MTU5NDc0MDA3NSwiZXhwIjoxNTk0NzQ3Mjc1fQ.pDdbcZ7tZy3pg1h46uZdF_RHkPPVueY8lYXsgYlFq0Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1vbmtleSIsInN1YiI6IjViOGY5NjhkZjgzYjNiMjAzODFjY2YxZCIsImlhdCI6MTU5NDkwNTk5OSwiZXhwIjoxNTk0OTEzMTk5fQ.3PV8kJTcvHU5P4brQT2osR6ng3tOUc6HsOknaRuah_I
 
+###
+
+POST http://localhost:3000/article/save HTTP/1.1
+Authorization: ''
+content-type: application/json
+
+{
+
+}
