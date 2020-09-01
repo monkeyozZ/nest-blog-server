@@ -7,3 +7,11 @@ export function save(data) {
     data
   })
 }
+
+export function getArticle(params) {
+  return request({
+    url: '/article/list',
+    method: 'get',
+    params
+  })
+}

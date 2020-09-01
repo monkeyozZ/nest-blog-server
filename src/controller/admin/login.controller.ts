@@ -12,7 +12,6 @@ export class LoginController {
   @Post('login')
   @HttpCode(200)
   async login(@Request() req) {
-    console.log(req.user)
     if (req.user.code === 200) {
       return this.authService.login(req.user);
     } else {

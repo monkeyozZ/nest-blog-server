@@ -3,7 +3,7 @@
     <div class="data-container">
       <el-row class="filter-box">
         <el-col :xs="{span: 16}" :sm="{span: 14}" :md="{span: 10}" :lg="{span: 8}">
-          <el-radio-group v-model="filterobj.condition">
+          <el-radio-group v-model="filterobj.status">
             <el-radio-button label="1">全部</el-radio-button>
             <el-radio-button label="2">已发布</el-radio-button>
             <el-radio-button label="3">草稿箱</el-radio-button>
@@ -17,7 +17,7 @@
             </el-col>
             <el-col class="hidden-md-and-down" :md="5" :lg="5">
               <el-select
-                v-model="filterobj.condition2"
+                v-model="filterobj.cate"
                 filterable
                 placeholder="分类筛选"
               >
@@ -37,7 +37,7 @@
             </el-col>
             <el-col class="hidden-md-and-down" :md="5" :lg="5">
               <el-select
-                v-model="filterobj.condition3"
+                v-model="filterobj.tag"
                 filterable
                 placeholder="标签筛选"
               >
@@ -55,7 +55,7 @@
             </el-col>
             <el-col class="hidden-sm-and-down" :md="10" :lg="8">
               <el-input
-                v-model="filterSearch.keywords"
+                v-model="filterobj.keywords"
                 placeholder="请输入关键字搜索"
               >
                 <el-button slot="append" icon="el-icon-search" @click="search" />
@@ -249,7 +249,7 @@
 
 <script>
 import waves from '@/directive/waves'
-// import ArticleApi from '@/api/article'
+import { getArticle } from '@/api/article'
 import VEdit from './save.vue'
 export default {
   directives: {
@@ -266,9 +266,10 @@ export default {
       thumb_img: '',
       loading: true,
       filterobj: {
-        condition: '1',
-        condition2: '',
-        condition3: ''
+        status: 1, // 1：全部， 2：已发布，3：草稿，4：回收站
+        cate: '',
+        tag: '',
+        keywords: ''
       },
       filterSearch: {
         condition: '1',
@@ -308,7 +309,7 @@ export default {
     }
   },
   computed: {
-    condition() {
+    /* condition() {
       return this.filterobj.condition
     },
     condition2() {
@@ -316,7 +317,7 @@ export default {
     },
     condition3() {
       return this.filterobj.condition3
-    }
+    } */
   },
   watch: {
     filterobj: {
@@ -324,8 +325,8 @@ export default {
         this.initArticleList()
       },
       deep: true
-    },
-    condition: {
+    }
+    /* condition: {
       handler() {
         this.filterSearch.condition = this.condition
       }
@@ -339,17 +340,18 @@ export default {
       handler() {
         this.filterSearch.condition2 = this.condition3
       }
-    }
+    } */
   },
   mounted() {
-    this.getTagList()
+    // this.getTagList()
     this.initArticleList()
   },
   methods: {
     clear() {
-      this.filterobj.condition = '1'
-      this.filterobj.condition2 = ''
-      this.filterobj.condition3 = ''
+      this.filterobj.status = 1
+      this.filterobj.cate = ''
+      this.filterobj.tag = ''
+      this.filterobj.keywords = ''
     },
     getTagList() {
       ArticleApi.getTaglist().then((res) => {
@@ -460,13 +462,24 @@ export default {
       this.thumb_img = url
     },
     initArticleList() {
-      ArticleApi.articleList(this.listQuery, this.filterobj).then((res) => {
-        if (res.data.code === 0) {
+      const params = {
+        ...this.listQuery,
+        ...this.filterobj
+      }
+      getArticle(params).then((res) => {
+        if (res.code === 200) {
+          this.tableData = res.data
+          // this.total = res.data.total
+          this.loading = false
+        }
+      })
+      /* getArticle(this.listQuery, this.filterobj).then((res) => {
+        if (res.code === 200) {
           this.tableData = res.data.articleList
           this.total = res.data.total
           this.loading = false
         }
-      })
+      }) */
     },
     search() {
       ArticleApi.articleList(this.listQuery, this.filterSearch).then((res) => {

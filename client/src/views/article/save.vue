@@ -306,7 +306,7 @@ export default {
     saveArticle() {
       this.Form.content = this.$refs.md.$el.innerHTML
       save(this.Form).then((res) => {
-        if (res.data.code === 0) {
+        if (res.code === 200) {
           this.$notify({
             type: 'success',
             title: '成功',
@@ -315,6 +315,7 @@ export default {
           this.$router.push('/article/index')
         }
       }).catch((err) => {
+        console.log(err)
         this.$notify({
           type: 'error',
           title: '失败',

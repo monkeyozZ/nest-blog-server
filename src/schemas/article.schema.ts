@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
 @Schema()
 export class Article extends Document {
   @Prop()
@@ -39,9 +38,11 @@ export class Article extends Document {
   @Prop()
   like: string // 文章喜欢数
 
-  @Prop()
-  creatTime: string // 文章创建时间
+  @Prop({ default: false  })
+  recovery: boolean // 文章假删除
 
+  @Prop({ default: Date.now }) // 文章创建时间
+  creatTime: Date
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);

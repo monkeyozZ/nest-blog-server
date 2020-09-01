@@ -58,7 +58,7 @@
               show-overflow-tooltip
             >
               <template slot-scope="scope">
-                {{ scope.row.creat_time|formatTime }}
+                {{ scope.row.creat_time | formatTime }}
               </template>
             </el-table-column>
             <el-table-column
@@ -120,6 +120,7 @@
 
 <script>
 // import articleApi from '@/api/article'
+import { save, getList, remove } from '@/api/tag'
 import waves from '@/directive/waves'
 export default {
   directives: {
@@ -128,15 +129,7 @@ export default {
   data() {
     return {
       loading: true,
-      tableData: [
-        {
-          _id: 1,
-          name: 'javascript',
-          alias: 'js',
-          article_num: '6',
-          creat_time: 1536292842438
-        }
-      ],
+      tableData: [],
       Form: {
         name: '',
         alias: ''
@@ -164,7 +157,7 @@ export default {
     }
   },
   mounted() {
-    // this.initTagList()
+    this.initTagList()
   },
   methods: {
     handleSelectionChange(val) {
@@ -181,20 +174,20 @@ export default {
     submit() {
       this.$refs.dataForm.validate((valid) => {
         if (valid) {
-          articleApi.tagInsert(this.Form).then((res) => {
-            if (res.data.code === 0) {
+          save(this.Form).then((res) => {
+            if (res.code === 200) {
               this.$notify({
                 type: 'success',
                 title: '成功',
-                message: '标签添加成功'
+                message: res.message
               })
               this.$refs.dataForm.resetFields()
               this.initTagList()
-            } else if (res.data.code === -1) {
+            } else {
               this.$notify({
                 type: 'error',
                 title: '失败',
-                message: res.data.message
+                message: res.message
               })
             }
           })
@@ -204,15 +197,19 @@ export default {
     editsubmit() {
       this.$refs.dataForm2.validate((valid) => {
         if (valid) {
-          articleApi.editOneTag(this.id, this.editForm).then((res) => {
-            if (res.data.code === 0) {
+          const obj = {
+            id: this.id,
+            ...this.editForm
+          }
+          save(obj).then((res) => {
+            if (res.code === 200) {
               this.dialogFormVisible = false // 关闭弹窗
               this.$refs.dataForm2.resetFields() // 重置表单
               this.initTagList()
               this.$notify({
                 type: 'success',
                 title: '成功',
-                message: res.data.message
+                message: res.message
               })
             }
           }).catch((err) => {
@@ -222,19 +219,19 @@ export default {
       })
     },
     initTagList() {
-      articleApi.getTaglist(this.listQuery).then((res) => {
-        if (res.data.code === 0) {
-          this.tableData = res.data.tagList
-          this.total = res.data.total
+      getList(this.listQuery).then((res) => {
+        if (res.code === 200) {
+          this.tableData = res.data
+          this.total = res.count
           this.loading = false
         }
       })
     },
     getOneTag(id) {
-      articleApi.getOneTag({ _id: id }).then((res) => {
-        if (res.data.code === 0) {
-          this.editForm.name = res.data.tagobj.name
-          this.editForm.alias = res.data.tagobj.alias
+      getList({ id }).then((res) => {
+        if (res.code === 200) {
+          this.editForm.name = res.data.name
+          this.editForm.alias = res.data.alias
         }
       }).catch((err) => {
         console.log(err)
@@ -251,19 +248,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        articleApi.delTag({ _id: id }).then((res) => {
-          if (res.data.code === 0) {
+        remove({ id }).then((res) => {
+          if (res.code === 200) {
             this.initTagList()
             this.$notify({
               type: 'success',
               title: '成功',
-              message: res.data.message
+              message: res.message
             })
           } else {
             this.$notify({
               type: 'error',
               title: '失败',
-              message: res.data.message
+              message: res.message
             })
           }
         })

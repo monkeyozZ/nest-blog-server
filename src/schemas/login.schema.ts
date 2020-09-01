@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 @Schema()
 export class Login extends Document {
   @Prop()
-  _id?: string;
+  _id: string;
 
   @Prop()
   username: string;

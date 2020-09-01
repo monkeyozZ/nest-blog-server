@@ -12,11 +12,16 @@ type Err = {
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(err: Err, user: User): any {
-    console.log(err, user)
     if (err || !user) {
-      return false
+      return {
+        code: 201,
+        message: '无效的access_token'
+      }
       // throw err || new UnauthorizedException();
     }
-    return user;
+    return {
+      code: 200,
+      ...user
+    };
   }
 }

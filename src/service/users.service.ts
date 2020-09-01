@@ -12,8 +12,6 @@ export class UsersService {
   constructor(@InjectModel('admin') private readonly loginModel: Model<Login>) {}
 
   async findOne(username: string): Promise<Login> {
-    // const loginModel = new this.loginModel(LoginDto);
-    // console.log(loginModel)
     const res = await this.loginModel.findOne({username});
     if (res) {
       return res
