@@ -92,7 +92,7 @@
         <el-button v-else type="primary" class="submit" icon="el-icon-check" @click="editArticle">保存修改</el-button>
       </el-col>
       <el-col class="md-box" :lg="22" :md="17" :sm="24" :xs="24">
-        <markdown-nice ref="md" default-title="文章内容" />
+        <markdown-nice v-if="!destroyMd" ref="md" default-title="文章内容" />
       </el-col>
     </el-row>
   </div>
@@ -186,7 +186,8 @@ export default {
       dialogImageUrl: '',
       dialogVisible: false,
       content_img_arr: [],
-      antDropdownDom: undefined
+      antDropdownDom: undefined,
+      destroyMd: false
     }
   },
   watch: {
@@ -225,7 +226,7 @@ export default {
         }
       }, 16)
     })
-    console.log(this.$refs.md)
+    // console.log(this.$refs.md)
   },
   methods: {
     /* getTagList () {
@@ -339,13 +340,16 @@ export default {
         }
       }) */
     }
+  },
+  beforeDestroy() {
+    console.log(11111)
+    this.destroyMd = true
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .article_container{
-  padding-top: 15px;
   .form-left{
     padding: 10px 20px;
     box-sizing: border-box;

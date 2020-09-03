@@ -21,7 +21,7 @@ import '@/permission' // permission control
 
 // set ElementUI lang to EN
 /* Vue.use(ElementUI, { locale }) */
-Vue.use(ElementUI)
+Vue.use(ElementUI, { size: 'small', zIndex: 3000 })
 Vue.use(VuePlugin)
 
 Vue.config.productionTip = false

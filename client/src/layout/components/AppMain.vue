@@ -30,7 +30,7 @@ export default {
   background: #F5F6F7;
 }
 .fixed-header+.app-main {
-  padding-top: 84px;
+  padding-top: 94px;
 }
 </style>
 

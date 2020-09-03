@@ -19,6 +19,7 @@
               <el-select
                 v-model="filterobj.cate"
                 filterable
+                clearable
                 placeholder="分类筛选"
               >
                 <el-option-group
@@ -39,6 +40,7 @@
               <el-select
                 v-model="filterobj.tag"
                 filterable
+                clearable
                 placeholder="标签筛选"
               >
                 <el-option-group
@@ -250,6 +252,7 @@
 <script>
 import waves from '@/directive/waves'
 import { getArticle } from '@/api/article'
+import { getList } from '@/api/tag'
 import VEdit from './save.vue'
 export default {
   directives: {
@@ -343,7 +346,7 @@ export default {
     } */
   },
   mounted() {
-    // this.getTagList()
+    this.getTagList()
     this.initArticleList()
   },
   methods: {
@@ -354,9 +357,9 @@ export default {
       this.filterobj.keywords = ''
     },
     getTagList() {
-      ArticleApi.getTaglist().then((res) => {
-        if (res.data.code === 0) {
-          this.tag = res.data.tagList
+      getList().then((res) => {
+        if (res.code === 200) {
+          this.tag = res.data
         }
       })
     },
@@ -482,7 +485,7 @@ export default {
       }) */
     },
     search() {
-      ArticleApi.articleList(this.listQuery, this.filterSearch).then((res) => {
+      getArticle(this.listQuery, this.filterSearch).then((res) => {
         if (res.data.code === 0) {
           this.tableData = res.data.articleList
           this.total = res.data.total
@@ -496,15 +499,14 @@ export default {
 
 <style lang="scss" scoped>
 .data-container{
-  background: #ddd;
   margin: 0 15px;
   .filter-box{
     padding: 5px;
     background: #fff;
     margin-bottom: 5px;
-    .el-button{
+    /* .el-button{
       padding: 5px 10px;
-    }
+    } */
     .cate-filter-box{
       .el-select{
         width: 100%;

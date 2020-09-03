@@ -12,9 +12,9 @@ const name = defaultSettings.title || '博客后台管理系统' // page title
 // use administrator privileges to execute the command line.
 // For example, Mac: sudo npm run
 // You can change the port by the following methods:
-// port = 9528 npm run dev OR npm run dev --port = 9528
+// port = 7777 npm run dev OR npm run dev --port = 7777
 // const port = process.env.port || process.env.npm_config_port || 9528 // dev port
-const port = 9528 // dev port
+const port = 7777 // dev port
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
