@@ -92,7 +92,7 @@
         <el-button v-else type="primary" class="submit" icon="el-icon-check" @click="editArticle">保存修改</el-button>
       </el-col>
       <el-col class="md-box" :lg="22" :md="17" :sm="24" :xs="24">
-        <markdown-nice v-if="!destroyMd" ref="md" default-title="文章内容" />
+        <markdown-nice ref="md" default-title="文章内容"/>
       </el-col>
     </el-row>
   </div>
@@ -186,8 +186,7 @@ export default {
       dialogImageUrl: '',
       dialogVisible: false,
       content_img_arr: [],
-      antDropdownDom: undefined,
-      destroyMd: false
+      antDropdownDom: undefined
     }
   },
   watch: {
@@ -340,10 +339,6 @@ export default {
         }
       }) */
     }
-  },
-  beforeDestroy() {
-    console.log(11111)
-    this.destroyMd = true
   }
 }
 </script>

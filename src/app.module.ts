@@ -1,3 +1,4 @@
+import { MusicModule } from './module/music.module';
 import { TagModule } from './module/tag.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,6 +11,6 @@ import { ArticleModule } from './module/article.module';
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false
-  }), LoginModule, ArticleModule, TagModule]
+  }), LoginModule, ArticleModule, TagModule, MusicModule]
 })
 export class AppModule {}
