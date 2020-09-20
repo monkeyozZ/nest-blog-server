@@ -40,13 +40,14 @@ export class TagService {
         const skip: number = (page - 1) * limit
         const count = await this.TagModel.countDocuments({})
         const tagArr = await this.TagModel.find().skip(skip).limit(limit)
-        for (let index = 0; index < tagArr.length; index++) {
-          const articleArr = await this.articleService.getArticleByTag({tag: tagArr[index]['alias']})
-          tagArr[index]['article_num'] = articleArr.length
+        const myTagArr: any[] = JSON.parse(JSON.stringify(tagArr))
+        for (let index = 0; index < myTagArr.length; index++) {
+          const articleArr = await this.articleService.getArticleByTag({tag: myTagArr[index]['alias']})
+          myTagArr[index]['article_count'] = articleArr.length
         }
         return {
           count: count,
-          data: tagArr
+          data: myTagArr
         }
       }
     } catch (error) {

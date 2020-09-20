@@ -3,7 +3,9 @@ export interface ArticleParams {
   status?: number | string
   cate?: string
   tag?: string
-  keywords?: string
+  keywords?: string,
+  pageSize?: string | number,
+  pageNum?: string | number
 }
 
 export interface whereType {
@@ -13,4 +15,9 @@ export interface whereType {
   tag?: string,
   keywords?: string,
   $or?: any[]
+}
+
+export interface pageInfo {
+  pageSize?: string | number,
+  pageNum?: string | number
 }

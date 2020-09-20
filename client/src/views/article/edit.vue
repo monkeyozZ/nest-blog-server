@@ -47,11 +47,6 @@
               inactive-text="存为草稿"
             />
           </el-form-item>
-          <!-- <el-form-item label="文章内容：" prop="content" :inline-message="true">
-            <div class="content-box">
-              <mavon-editor v-model="Form.content" @imgAdd="imgAdd" @imgDel="imgDel" ref="md"/>
-            </div>
-          </el-form-item> -->
           <el-form-item label="缩略图：" prop="thumb_img" class="thumb_box">
             <el-upload
               action="#"
@@ -96,11 +91,11 @@
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col class="md-box" :lg="23" :md="23" :sm="23" :xs="23">
-        <markdown-nice default-title="文章内容" />
+      <el-col class="md-box">
+        <markdown-nice default-title="文章内容" :default-text="Form.contentText" />
       </el-col>
       <el-col class="submit-box">
-        <el-button type="primary" class="submit" icon="el-icon-arrow-up" @click="submit">发布文章</el-button>
+        <el-button type="primary" class="submit" icon="el-icon-check" @click="editArticle">保存修改</el-button>
       </el-col>
     </el-row>
   </div>
@@ -108,14 +103,11 @@
 
 <script>
 import MarkdownNice from 'markdown-nice'
-import axios from 'axios'
-import { save } from '@/api/article'
+import { save, getArticle } from '@/api/article'
 import { getList } from '@/api/tag'
 export default {
   components: {
     MarkdownNice
-  },
-  props: {
   },
   data() {
     var validatetag = async(rule, value, callback) => {
@@ -167,6 +159,7 @@ export default {
         category: [],
         tag: [],
         content: '',
+        contentText: '',
         source: '0',
         status: true,
         imageUrl: ''
@@ -183,10 +176,28 @@ export default {
       dialogVisible: false,
       content_img_arr: [],
       antDropdownDom: undefined,
+      detailData: {},
       positionTop: 0
     }
   },
+  watch: {
+    detailData: {
+      handler() {
+        const { title, keywords, desc, category, tag, contentText, origin, status, imageUrl } = this.detailData
+        this.Form.title = title
+        this.Form.keywords = keywords
+        this.Form.desc = desc
+        this.Form.category = category
+        this.Form.tag = tag
+        this.Form.contentText = contentText
+        this.Form.origin = origin
+        this.Form.status = status
+        this.Form.imageUrl = imageUrl
+      }
+    }
+  },
   mounted() {
+    this.getDetailById()
     this.getTagList()
     const mdNav = document.querySelector('.nice-left-nav')
     mdNav.addEventListener('click', () => {
@@ -212,46 +223,6 @@ export default {
       const headerHeight = document.querySelector('.fixed-header').clientHeight
       this.positionTop = mdOffHeight + headerHeight + 15
     },
-    imgAdd(pos, file) {
-      // console.log(file)
-      const formdata = new FormData()
-      formdata.append('image', file)
-      axios({
-        url: this.baseapi + '/article/contentimg',
-        method: 'post',
-        data: formdata,
-        headers: { 'Content-Type': 'multipart/form-data' }
-      }).then((res) => {
-        if (res.data.code === 0) {
-          const key = file.name
-          const obj = {}
-          obj[key] = res.data.imageUrl
-          this.content_img_arr.push(obj)
-          this.$refs.md.$img2Url(pos, this.baseapi + res.data.imageUrl)
-        }
-      })
-    },
-    imgDel(file) {
-      let delurl = ''
-      this.content_img_arr.map((item) => {
-        for (const k in item) {
-          if (file[0].name === k) {
-            // console.log(item[file[0].name])
-            delurl = item[file[0].name]
-          }
-        }
-      })
-
-      articleApi.delcontentimg(delurl).then((res) => {
-        if (res.data.code === 0) {
-          this.$notify({
-            type: 'success',
-            title: '成功',
-            message: res.data.message
-          })
-        }
-      })
-    },
     handleThumbSuccess(res, file) {
       if (res.code === 0) {
         this.Form.imageUrl = res.imageUrl
@@ -264,6 +235,39 @@ export default {
       }
       return isLt10M
     },
+    getDetailById() {
+      const id = this.$route.query.id
+      getArticle({ id }).then((res) => {
+        if (res.code === 200) {
+          this.detailData = res.data
+        }
+      })
+    },
+    editArticle() {
+      /* this.$refs.dataForm1.validate((valid) => {
+        if (valid) {
+          articleApi.editOneArticle(this.editId, this.Form).then((res) => {
+            if (res.data.code === 0) {
+              this.$emit('changeEditdialogVisible')
+              this.$notify({
+                type: 'success',
+                title: '成功',
+                message: '文章修改成功'
+              })
+            }
+          })
+        }
+      }) */
+      this.Form.content = document.querySelector('#nice').innerHTML
+      this.Form.contentText = document.querySelector('#nice').innerText
+      const obj = {
+        id: this.$$route.query.id,
+        ...this.Form
+      }
+      save(obj).then(res => {
+
+      })
+    },
     getTagList() {
       getList().then((res) => {
         if (res.code === 200) {
@@ -273,43 +277,6 @@ export default {
           })
         }
       })
-    },
-    saveArticle() {
-      this.Form.content = document.querySelector('#nice').innerHTML
-      this.Form.contentText = document.querySelector('#nice').innerText
-      save(this.Form).then((res) => {
-        if (res.code === 200) {
-          this.$notify({
-            type: 'success',
-            title: '成功',
-            message: '文章添加成功'
-          })
-          this.$router.push('/article/index')
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$notify({
-          type: 'error',
-          title: '失败',
-          message: err
-        })
-      })
-    },
-    submit() {
-      this.saveArticle()
-      /* this.$refs.dataForm1.validate((valid) => {
-        if (valid) {
-          if (this.Form.imageUrl) {
-            this.saveArticle()
-          } else {
-            this.$notify({
-              type: 'warning',
-              title: '警告',
-              message: '请选择要上传的缩略图'
-            })
-          }
-        }
-      }) */
     }
   }
 }

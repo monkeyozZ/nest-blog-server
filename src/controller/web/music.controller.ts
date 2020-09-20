@@ -6,7 +6,7 @@ export class MusicController {
   constructor(private readonly musicService: MusicService) {}
 
   @Get('list')
-  async likeList() {
+  async likeList():Promise<any> {
     try {
       const res = await this.musicService.getList()
       console.log(res)

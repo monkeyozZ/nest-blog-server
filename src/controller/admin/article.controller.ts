@@ -31,15 +31,29 @@ export class ArticleController {
   async getList (@Query() params) {
     console.log(params)
     const res = await this.articleService.getArticle(params)
-    if (res) {
-      return {
-        code: 200,
-        data: res
+    if (params.id) {
+      if (res) {
+        return {
+          code: 200,
+          data: res
+        }
+      } else {
+        return {
+          code: 500,
+          message: '服务器异常'
+        }
       }
     } else {
-      return {
-        code: 500,
-        message: '服务器异常'
+      if (res.data) {
+        return {
+          code: 200,
+          data: res
+        }
+      } else {
+        return {
+          code: 500,
+          message: '服务器异常'
+        }
       }
     }
   }

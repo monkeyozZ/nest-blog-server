@@ -14,8 +14,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1vb
 
 ###
 
-GET  http://localhost:3000/article/list HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1vbmtleSIsInN1YiI6IjViOGY5NjhkZjgzYjNiMjAzODFjY2YxZCIsImlhdCI6MTU5NTE2MTgyOCwiZXhwIjoxNTk1MTY5MDI4fQ.Mk4IIaE0QT9mrnNiFJVJdaLIR6u_7OGUvvTlAckYGFw
+GET  http://localhost:3000/webArticle/list HTTP/1.1
 content-type: application/json
 
 

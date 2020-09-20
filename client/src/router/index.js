@@ -72,6 +72,13 @@ export const constantRoutes = [
         meta: { title: '发布文章', hidden: false }
       },
       {
+        path: 'edit',
+        name: 'articleEdit',
+        component: () => import('@/views/article/edit'),
+        hidden: true,
+        meta: { title: '编辑文章' }
+      },
+      {
         path: 'tag',
         name: 'articletag',
         component: () => import('@/views/article/tag'),

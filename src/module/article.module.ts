@@ -1,35 +1,36 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { ArticleController } from './../controller/admin/article.controller';
+import { ArticleController } from '../controller/admin/article.controller';
 import { ArticleService } from '../service/article.service'
 import { MongooseModule } from '@nestjs/mongoose';
 import { ArticleSchema } from '../schemas/article.schema';
 import { AuthModule } from './auth.module';
-/* import * as autoIncrement from 'mongoose-auto-increment';
-import * as mongoose  from 'mongoose' */
+import { WebArticleController } from '../controller/web/article.controller';
+import * as autoIncrement from 'mongoose-auto-increment';
+// import * as mongoose  from 'mongoose'
+import { connection } from 'mongoose';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{
+    MongooseModule.forFeatureAsync([{
       name: 'article',
-      schema: ArticleSchema,
-      /* useFactory: (): any => {
+      // schema: ArticleSchema,
+      useFactory: (): any => {
         const schema = ArticleSchema
-        console.log(mongoose)
-        autoIncrement.initialize(mongoose.connection);
+        /* autoIncrement.initialize(connection);
         schema.plugin(autoIncrement.plugin, {
           model: 'article',
           field: 'id',
           startAt: 1,
           incrementBy: 1
-        });
+        }); */
         return schema;
-      }, */
+      },
     }]),
     AuthModule
   ],
-  controllers: [ArticleController],
+  controllers: [ArticleController, WebArticleController],
   providers: [ArticleService],
   exports: [ArticleService]
 })

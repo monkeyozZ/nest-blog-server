@@ -24,13 +24,13 @@ export class Article extends Document {
   status: boolean // 文章状态
 
   @Prop()
-  open: boolean // 文章是否公开
-
-  @Prop()
   thumb: string // 文章缩略图
 
   @Prop()
   content: string // 文章内容
+
+  @Prop()
+  contentText: string // 文章内容
 
   @Prop()
   view: string // 文章查看次数

@@ -78,16 +78,6 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column
-            type="selection"
-            width="55"
-          />
-          <el-table-column
-            label="ID"
-            width="55"
-          >
-            <template slot-scope="scope">{{ scope.row.id }}</template>
-          </el-table-column>
-          <el-table-column
             prop="title"
             label="文章标题"
             width="300"
@@ -144,7 +134,7 @@
             show-overflow-tooltip
           >
             <template slot-scope="scope">
-              {{ scope.row.creat_time | formatTime }}
+              {{ scope.row.creatTime | parseTime("{y}-{m}-{d} {h}:{i}:{s}") }}
             </template>
           </el-table-column>
           <el-table-column
@@ -238,14 +228,6 @@
     >
       <img :src="baseapi + thumb_img" alt="" style="display:block;margin: 0 auto;max-width:100%">
     </el-dialog>
-
-    <el-dialog
-      title="编辑文章"
-      :visible.sync="editdialogVisible"
-      width="80%"
-    >
-      <v-edit :edit="true" :edit-arr="editArr" :edit-id="editId" @changeEditdialogVisible="changeEditdialogVisible" />
-    </el-dialog>
   </div>
 </template>
 
@@ -253,19 +235,14 @@
 import waves from '@/directive/waves'
 import { getArticle } from '@/api/article'
 import { getList } from '@/api/tag'
-import VEdit from './save.vue'
 export default {
   directives: {
     waves
-  },
-  components: {
-    VEdit
   },
   data() {
     return {
       baseapi: process.env.BASE_API,
       imgdialogVisible: false,
-      editdialogVisible: false,
       thumb_img: '',
       loading: true,
       filterobj: {
@@ -282,8 +259,8 @@ export default {
       },
       count: `(${this.total})`,
       listQuery: {
-        page: 1,
-        limit: 8
+        pageNum: 1,
+        pageSize: 8
       },
       tableData: [],
       editArr: {},
@@ -364,20 +341,18 @@ export default {
       })
     },
     handleSizeChange(val) {
-      this.listQuery.limit = val
+      this.listQuery.pageSize = val
       this.initArticleList()
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val
+      this.listQuery.pageNum = val
       this.initArticleList()
     },
     handleEdit(id) {
-      this.editdialogVisible = true
-      this.editId = id
-      ArticleApi.getOneArticle({ _id: id }).then((res) => {
-        if (res.data.code === 0) {
-          this.editArr = res.data.articleobj
-        }
+      // this.editdialogVisible = true
+      this.$router.push({
+        path: '/article/edit',
+        query: { id }
       })
     },
     fakeDelete(id) {
@@ -453,10 +428,6 @@ export default {
         })
       })
     },
-    changeEditdialogVisible() {
-      this.editdialogVisible = false
-      this.initArticleList()
-    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
@@ -471,7 +442,7 @@ export default {
       }
       getArticle(params).then((res) => {
         if (res.code === 200) {
-          this.tableData = res.data
+          this.tableData = res.data.data
           // this.total = res.data.total
           this.loading = false
         }

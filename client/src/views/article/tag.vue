@@ -29,16 +29,6 @@
             @selection-change="handleSelectionChange"
           >
             <el-table-column
-              type="selection"
-              width="55"
-            />
-            <el-table-column
-              label="ID"
-              width="55"
-            >
-              <template slot-scope="scope">{{ scope.$index + 1 }}</template>
-            </el-table-column>
-            <el-table-column
               prop="name"
               label="标签名称"
               show-overflow-tooltip
@@ -49,7 +39,7 @@
               show-overflow-tooltip
             />
             <el-table-column
-              prop="article_num"
+              prop="article_count"
               label="文章数量"
               show-overflow-tooltip
             />
@@ -58,7 +48,7 @@
               show-overflow-tooltip
             >
               <template slot-scope="scope">
-                {{ scope.row.creat_time | formatTime }}
+                {{ scope.row.creat_time | parseTime("{y}-{m}-{d} {h}:{i}:{s}") }}
               </template>
             </el-table-column>
             <el-table-column
