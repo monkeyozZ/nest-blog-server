@@ -111,4 +111,20 @@ const statusfilter = (status) => {
   }
 }
 
-export default { parseTime, formatTime, catefilter, openfilter, statusfilter }
+const sourcefilter = (n) => {
+  let text = ''
+  switch (n) {
+    case '0':
+      text = '原创'
+      break
+    case '1':
+      text = '转载'
+      break
+    case '2':
+      text = '混合'
+      break
+  }
+  return text
+}
+
+export default { parseTime, formatTime, catefilter, openfilter, statusfilter, sourcefilter }

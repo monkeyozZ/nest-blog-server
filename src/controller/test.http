@@ -17,6 +17,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1vb
 GET  http://localhost:3000/webArticle/list HTTP/1.1
 content-type: application/json
 
-
+###
 GET  http://localhost:3000/music/list HTTP/1.1
+content-type: application/json
+###
+POST  http://localhost:3000/upload/image HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1vbmtleSIsInN1YiI6IjViOGY5NjhkZjgzYjNiMjAzODFjY2YxZCIsImlhdCI6MTYwMDc4NzM0MCwiZXhwIjoxNjAwNzk0NTQwfQ.y7KwnqEUqbtIbHQgNv4LTqgYaAfwLRMZjkHKTM5LEU8
+
+###
+GET  http://localhost:3000/webComment/list?id=5f6eebe680c2291a8c936515 HTTP/1.1
 content-type: application/json

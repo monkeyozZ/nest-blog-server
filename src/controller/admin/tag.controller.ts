@@ -3,15 +3,12 @@ import { Controller, Post, Body, HttpCode, Get, UseGuards, UseInterceptors, Quer
 import { TagService } from '../../service/tag.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AuthInterceptor } from '../../interceptor/auth.interceptor';
-import { get } from 'http';
 
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(AuthInterceptor)
 @Controller('tag')
 export class TagController {
-  constructor (private readonly tagService: TagService) {
-
-  }
+  constructor (private readonly tagService: TagService) {}
   @Post('save')
   @HttpCode(200)
   async save (@Body() req:Tag):Promise<any> {

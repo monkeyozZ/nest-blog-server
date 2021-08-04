@@ -1,38 +1,21 @@
 <template>
   <div class="article_container">
     <div class="data-container">
-      <el-row class="filter-box">
-        <el-col :xs="{span: 16}" :sm="{span: 14}" :md="{span: 10}" :lg="{span: 8}">
-          <el-radio-group v-model="filterobj.condition">
-            <el-radio-button label="1">全部</el-radio-button>
-            <el-radio-button label="2">已发布</el-radio-button>
-            <el-radio-button label="3">草稿箱</el-radio-button>
-            <el-radio-button label="4">回收站</el-radio-button>
-          </el-radio-group>
-        </el-col>
-      </el-row>
       <div class="list-box">
         <el-table
-          ref="multipleTable"
           v-loading="loading"
           border
-          stripe
           :data="tableData"
           tooltip-effect="dark"
           style="width: 100%"
-          @selection-change="handleSelectionChange"
         >
-          <el-table-column
-            type="selection"
-            width="55"
-          />
           <el-table-column
             prop="content"
             label="时间轴内容"
             show-overflow-tooltip
           />
           <el-table-column
-            prop="thumb_img"
+            prop="imageUrl"
             label="缩略图"
             width="150"
           >
@@ -46,18 +29,7 @@
             show-overflow-tooltip
           >
             <template slot-scope="scope">
-              {{ scope.row.creat_time | formatTime }}
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="status"
-            label="状态"
-            width="80"
-            show-overflow-tooltip
-          >
-            <template slot-scope="scope">
-              <el-tag v-if="scope.row.status" type="success">{{ scope.row.status | statusfilter }}</el-tag>
-              <el-tag v-else type="info">{{ scope.row.status | statusfilter }}</el-tag>
+              {{ scope.row.createTime | parseTime("{y}-{m}-{d} {h}:{i}:{s}") }}
             </template>
           </el-table-column>
           <el-table-column
@@ -87,17 +59,6 @@
               />
 
               <el-button
-                v-if="!scope.row.recovery"
-                v-waves
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-                circle
-                @click="fakeDelete(scope.row._id)"
-              />
-
-              <el-button
-                v-else
                 v-waves
                 size="mini"
                 type="danger"
@@ -128,7 +89,7 @@
       width="30%"
       center
     >
-      <img :src="baseapi + thumb_img" alt="" style="display:block;margin: 0 auto;max-width:100%">
+      <img :src="imageUrl" alt="" style="display:block;margin: 0 auto;max-width:100%">
     </el-dialog>
 
     <el-dialog
@@ -136,14 +97,14 @@
       :visible.sync="editdialogVisible"
       width="80%"
     >
-      <v-edit :edit="true" :edit-arr="editArr" :edit-id="editId" @changeEditdialogVisible="changeEditdialogVisible" />
+      <v-edit :edit="true" :time-obj="timeObj" :edit-id="editId" @changeEditdialogVisible="changeEditdialogVisible" />
     </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves'
-// import TimeApi from '@/api/time'
+import { getList, delTime } from '@/api/time'
 import VEdit from './insert.vue'
 export default {
   directives: {
@@ -154,159 +115,39 @@ export default {
   },
   data() {
     return {
-      baseapi: process.env.BASE_API,
       imgdialogVisible: false,
       editdialogVisible: false,
-      thumb_img: '',
+      imageUrl: '',
       loading: true,
-      filterobj: {
-        condition: '1',
-        condition2: '',
-        condition3: ''
-      },
-      filterSearch: {
-        condition: '1',
-        condition2: '',
-        condition3: '',
-        keywords: ''
-      },
-      count: `(${this.total})`,
       listQuery: {
-        page: 1,
-        limit: 8
+        pageNum: 1,
+        pageSize: 8
       },
       tableData: [],
-      editArr: {},
+      timeObj: {},
       editId: '',
-      total: '',
-      category: [
-        {
-          label: '所有分类',
-          options: [{
-            label: '学无止境',
-            value: 'learn'
-          },
-          {
-            label: '个人归档',
-            value: 'note'
-          },
-          {
-            label: '慢生活',
-            value: 'life'
-          }
-          ]
-        }
-      ],
-      tag: [],
-      multipleSelection: []
-    }
-  },
-  computed: {
-    condition() {
-      return this.filterobj.condition
-    },
-    condition2() {
-      return this.filterobj.condition2
-    },
-    condition3() {
-      return this.filterobj.condition3
-    }
-  },
-  watch: {
-    filterobj: {
-      handler() {
-        this.initTimeLineList()
-      },
-      deep: true
-    },
-    condition: {
-      handler() {
-        this.filterSearch.condition = this.condition
-      }
-    },
-    condition2: {
-      handler() {
-        this.filterSearch.condition2 = this.condition2
-      }
-    },
-    condition3: {
-      handler() {
-        this.filterSearch.condition2 = this.condition3
-      }
+      total: ''
     }
   },
   mounted() {
-    // this.initTimeLineList()
+    this.initTimeLineList()
   },
   methods: {
-    clear() {
-      this.filterobj.condition = '1'
-      this.filterobj.condition2 = ''
-      this.filterobj.condition3 = ''
-    },
     handleSizeChange(val) {
-      this.listQuery.limit = val
+      this.listQuery.pageSize = val
       this.initTimeLineList()
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val
+      this.listQuery.pageNum = val
       this.initTimeLineList()
     },
     handleEdit(id) {
       this.editdialogVisible = true
       this.editId = id
-      TimeApi.getOneTime({ _id: id }).then((res) => {
-        if (res.data.code === 0) {
-          this.editArr = res.data.timeObj
+      getList({ id }).then((res) => {
+        if (res.code === 200) {
+          this.timeObj = res.data
         }
-      })
-    },
-    fakeDelete(id) {
-      this.$confirm('确定将该记录添加到回收站吗？', '温馨提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        TimeApi.fakeDelTime({ _id: id }).then((res) => {
-          if (res.data.code === 0) {
-            this.initTimeLineList()
-            this.$notify({
-              type: 'success',
-              title: '成功',
-              message: res.data.message
-            })
-          } else {
-            this.$notify({
-              type: 'error',
-              title: '失败',
-              message: res.data.message
-            })
-          }
-        })
-      })
-    },
-    recoveryDelete(id) {
-      this.$confirm('该记录将被恢复？', '温馨提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        TimeApi.recoveryDelTime({ _id: id }).then((res) => {
-          if (res.data.code === 0) {
-            this.initTimeLineList()
-            this.$notify({
-              type: 'success',
-              title: '成功',
-              message: res.data.message
-            })
-          } else {
-            this.$notify({
-              type: 'error',
-              title: '失败',
-              message: res.data.message
-            })
-          }
-        })
       })
     },
     handleDelete(id) {
@@ -316,19 +157,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        TimeApi.delTime({ _id: id }).then((res) => {
-          if (res.data.code === 0) {
+        delTime({ id }).then((res) => {
+          if (res.code === 200) {
             this.initTimeLineList()
             this.$notify({
               type: 'success',
               title: '成功',
-              message: res.data.message
+              message: res.message
             })
           } else {
             this.$notify({
               type: 'error',
               title: '失败',
-              message: res.data.message
+              message: res.message
             })
           }
         })
@@ -338,18 +179,19 @@ export default {
       this.editdialogVisible = false
       this.initTimeLineList()
     },
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-    },
     jioinImgUrl(url) {
       this.imgdialogVisible = true
-      this.thumb_img = url
+      this.imageUrl = url
     },
     initTimeLineList() {
-      TimeApi.timeList(this.listQuery, this.filterobj).then((res) => {
-        if (res.data.code === 0) {
-          this.tableData = res.data.timeLineList
-          this.total = res.data.total
+      const params = {
+        pageSize: this.listQuery.pageSize,
+        pageNum: this.listQuery.pageNum
+      }
+      getList(params).then((res) => {
+        if (res.code === 200) {
+          this.tableData = this.tableData.concat(res.data.data)
+          this.total = res.data.count
           this.loading = false
         }
       })

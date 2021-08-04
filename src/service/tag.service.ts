@@ -1,16 +1,21 @@
 import { ArticleService } from './article.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Model, Document } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Tag } from '../interface/tag.interface';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
-export class TagService {
+export class TagService implements OnModuleInit {
+  private articleService: ArticleService;
   constructor (
-  @InjectModel('tag')
-  private readonly TagModel: Model<Document>,
-  private readonly articleService: ArticleService
-  ) {
+    @InjectModel('tag')
+    private readonly TagModel: Model<Document>,
+    readonly moduleRef: ModuleRef,
+  ) {}
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  onModuleInit() {
+    this.articleService = this.moduleRef.get(ArticleService, { strict: false });
   }
   async save (obj:Tag):Promise<any> {
     try {
@@ -31,12 +36,15 @@ export class TagService {
     try {
       if (params.id) {
         const res = await this.TagModel.findById(params.id)
+        const articleCount = await this.articleService.getArticleByTag({ tag: res['alias'] })
+        const arr = JSON.parse(JSON.stringify(res))
+        arr['article_count'] = articleCount.length
         return {
-          data: res
+          data: arr
         }
       } else {
-        const page: number = parseInt(params.page)
-        const limit: number =parseInt(params.limit)
+        const page: number = parseInt(params.pageNum)
+        const limit: number =parseInt(params.pageSize)
         const skip: number = (page - 1) * limit
         const count = await this.TagModel.countDocuments({})
         const tagArr = await this.TagModel.find().skip(skip).limit(limit)
@@ -53,6 +61,11 @@ export class TagService {
     } catch (error) {
       
     }
+  }
+
+  async getTagByAlias (alias: string):Promise<any> {
+    const res = await this.TagModel.find({ alias })
+    return res
   }
 
   async delete (params: Tag):Promise<any> {

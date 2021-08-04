@@ -32,11 +32,11 @@ export class Article extends Document {
   @Prop()
   contentText: string // 文章内容
 
-  @Prop()
-  view: string // 文章查看次数
+  @Prop({ default: 0 })
+  view: number // 文章查看次数
 
-  @Prop()
-  like: string // 文章喜欢数
+  @Prop({ default: 0 })
+  like: number // 文章喜欢数
 
   @Prop({ default: false  })
   recovery: boolean // 文章假删除

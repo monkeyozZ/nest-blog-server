@@ -47,43 +47,21 @@
               inactive-text="存为草稿"
             />
           </el-form-item>
-          <el-form-item label="缩略图：" prop="thumb_img" class="thumb_box">
+          <el-form-item label="缩略图：" prop="thumb" class="thumb_box">
             <el-upload
-              action="#"
-              list-type="picture-card"
-              :auto-upload="false"
-              :limit="1"
+              class="thumb-uploader"
+              :action="upLaodUrl"
+              :show-file-list="false"
+              :on-success="handleThumbSuccess"
             >
-              <i slot="default" class="el-icon-plus" />
-              <div slot="file" slot-scope="{file}">
-                <img
-                  class="el-upload-list__item-thumbnail"
-                  :src="file.url"
-                  alt=""
-                >
-                <span class="el-upload-list__item-actions">
-                  <span
-                    class="el-upload-list__item-preview"
-                    @click="handlePictureCardPreview(file)"
-                  >
-                    <i class="el-icon-zoom-in" />
-                  </span>
-                  <span
-                    v-if="!disabled"
-                    class="el-upload-list__item-delete"
-                    @click="handleDownload(file)"
-                  >
-                    <i class="el-icon-download" />
-                  </span>
-                  <span
-                    v-if="!disabled"
-                    class="el-upload-list__item-delete"
-                    @click="handleRemove(file)"
-                  >
-                    <i class="el-icon-delete" />
-                  </span>
-                </span>
+              <div v-if="Form.thumb">
+                <img :src="Form.thumb" class="thumb">
+                <p class="pancel">
+                  <i class="el-icon-zoom-in" @click.stop="handlePictureCardPreview" />
+                  <i class="el-icon-delete" @click.stop="handleRemove" />
+                </p>
               </div>
+              <i v-else class="el-icon-plus thumb-uploader-icon" />
             </el-upload>
             <el-dialog :visible.sync="dialogVisible">
               <img width="100%" :src="dialogImageUrl" alt="">
@@ -92,7 +70,7 @@
         </el-form>
       </el-col>
       <el-col class="md-box">
-        <markdown-nice default-title="文章内容" :default-text="Form.contentText" />
+        <markdown-nice default-title="文章内容" :default-text="Form.contentText" :useImageHosting="useImageHosting" />
       </el-col>
       <el-col class="submit-box">
         <el-button type="primary" class="submit" icon="el-icon-check" @click="editArticle">保存修改</el-button>
@@ -104,6 +82,7 @@
 <script>
 import MarkdownNice from 'markdown-nice'
 import { save, getArticle } from '@/api/article'
+import { deleteImg } from '@/api/image'
 import { getList } from '@/api/tag'
 export default {
   components: {
@@ -162,7 +141,7 @@ export default {
         contentText: '',
         source: '0',
         status: true,
-        imageUrl: ''
+        thumb: ''
       },
       rules: {
         title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
@@ -177,22 +156,30 @@ export default {
       content_img_arr: [],
       antDropdownDom: undefined,
       detailData: {},
-      positionTop: 0
+      positionTop: 0,
+      upLaodUrl: process.env.VUE_APP_UPLOAD_API,
+      useImageHosting: {
+        name: 'wowmonkey',
+        url: process.env.VUE_APP_UPLOAD_API,
+        isSmmsOpen: false,
+        isQiniuyunOpen: false,
+        isAliyunOpen: false
+      }
     }
   },
   watch: {
     detailData: {
       handler() {
-        const { title, keywords, desc, category, tag, contentText, origin, status, imageUrl } = this.detailData
+        const { title, keywords, desc, category, tagAlias, contentText, source, status, thumb } = this.detailData
         this.Form.title = title
         this.Form.keywords = keywords
         this.Form.desc = desc
         this.Form.category = category
-        this.Form.tag = tag
+        this.Form.tag = tagAlias
         this.Form.contentText = contentText
-        this.Form.origin = origin
+        this.Form.source = source
         this.Form.status = status
-        this.Form.imageUrl = imageUrl
+        this.Form.thumb = thumb
       }
     }
   },
@@ -223,9 +210,9 @@ export default {
       const headerHeight = document.querySelector('.fixed-header').clientHeight
       this.positionTop = mdOffHeight + headerHeight + 15
     },
-    handleThumbSuccess(res, file) {
-      if (res.code === 0) {
-        this.Form.imageUrl = res.imageUrl
+    handleThumbSuccess(res) {
+      if (res.code === 200) {
+        this.Form.thumb = res.data
       }
     },
     beforeThumbUpload(file) {
@@ -242,6 +229,18 @@ export default {
           this.detailData = res.data
         }
       })
+    },
+    handleRemove() {
+      const params = {
+        key: this.Form.thumb
+      }
+      deleteImg(params).then(res => {
+        this.Form.thumb = ''
+      })
+    },
+    handlePictureCardPreview(e) {
+      this.dialogImageUrl = this.Form.thumb
+      this.dialogVisible = true
     },
     editArticle() {
       /* this.$refs.dataForm1.validate((valid) => {
@@ -261,11 +260,18 @@ export default {
       this.Form.content = document.querySelector('#nice').innerHTML
       this.Form.contentText = document.querySelector('#nice').innerText
       const obj = {
-        id: this.$$route.query.id,
+        id: this.$route.query.id,
         ...this.Form
       }
       save(obj).then(res => {
-
+        if (res.code === 200) {
+          this.$notify({
+            type: 'success',
+            title: '成功',
+            message: '文章修改成功'
+          })
+          this.$router.push('/article/index')
+        }
       })
     },
     getTagList() {
@@ -311,25 +317,55 @@ export default {
       min-height: 480px;
       max-height: 650px;
     }
-    .thumb-uploader{
-      .el-upload-list__item-status-label{
-        display: block;
-        height: 27px;
-        top: -10px;
-        .el-icon-check{
+    /deep/.thumb-uploader{
+      display: inline-block;
+      .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .el-upload:hover {
+        border-color: #409EFF;
+      }
+      .pancel{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 9;
+        transition: opacity 0.3s;
+        opacity: 0;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        &:hover{
+          opacity: 1;
+          background: rgba(0,0,0,.5);
+        }
+        i{
+          font-size: 28px;
           color: #fff;
+          &:first-child{
+            margin-right: 8px;
+          }
+          &:last-child{
+            margin-left: 8px;
+          }
         }
       }
-      .thumb-uploader-icon{
+      .thumb-uploader-icon {
         font-size: 28px;
         color: #8c939d;
-        width: 100%;
-        line-height: 150px;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
         text-align: center;
       }
       .thumb{
-        width: 210px;
-        height: 150px;
+        width: 178px;
+        height: 178px;
         display: block;
       }
     }

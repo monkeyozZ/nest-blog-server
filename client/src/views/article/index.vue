@@ -2,7 +2,7 @@
   <div class="article_container">
     <div class="data-container">
       <el-row class="filter-box">
-        <el-col :xs="{span: 16}" :sm="{span: 14}" :md="{span: 10}" :lg="{span: 8}">
+        <el-col :xs="9" :sm="7" :md="7" :lg="8">
           <el-radio-group v-model="filterobj.status">
             <el-radio-button label="1">全部</el-radio-button>
             <el-radio-button label="2">已发布</el-radio-button>
@@ -10,14 +10,14 @@
             <el-radio-button label="4">回收站</el-radio-button>
           </el-radio-group>
         </el-col>
-        <el-col :xs="8" :sm="10" :md="{span:11}" :lg="{span:12, offset: 4}">
+        <el-col :xs="{span: 16, dffset: 1}" :sm="{span: 15, offset: 2}" :md="{span: 15, offset: 2}" :lg="{span:12, offset: 4}">
           <el-row class="cate-filter-box" :gutter="10">
-            <el-col class="hidden-sm-and-down" :md="10" :lg="5">
-              <el-button icon="el-icon-delete" @click="clear">清空筛选条件</el-button>
+            <el-col class="hidden-sm-and-down" :xs="6" :sm="4" :md="4" :lg="5">
+              <el-button icon="el-icon-delete" @click="clear">清空筛选</el-button>
             </el-col>
-            <el-col class="hidden-md-and-down" :md="5" :lg="5">
+            <el-col class="hidden-md-and-down" :xs="6" :sm="6" :md="5" :lg="5">
               <el-select
-                v-model="filterobj.cate"
+                v-model="filterobj.category"
                 filterable
                 clearable
                 placeholder="分类筛选"
@@ -36,7 +36,7 @@
                 </el-option-group>
               </el-select>
             </el-col>
-            <el-col class="hidden-md-and-down" :md="5" :lg="5">
+            <el-col class="hidden-md-and-down" :xs="6" :sm="6" :md="5" :lg="5">
               <el-select
                 v-model="filterobj.tag"
                 filterable
@@ -55,7 +55,7 @@
                 </el-option-group>
               </el-select>
             </el-col>
-            <el-col class="hidden-sm-and-down" :md="10" :lg="8">
+            <el-col class="hidden-sm-and-down" :xs="6" :sm="8" :md="7" :lg="8">
               <el-input
                 v-model="filterobj.keywords"
                 placeholder="请输入关键字搜索"
@@ -89,7 +89,7 @@
             width="150"
           >
             <template slot-scope="scope">
-              <el-button type="text" @click="jioinImgUrl(scope.row.imageUrl)">查看缩略图</el-button>
+              <el-button type="text" @click="jioinImgUrl(scope.row.thumb)">查看缩略图</el-button>
             </template>
           </el-table-column>
           <el-table-column
@@ -107,7 +107,7 @@
             label="标签"
           >
             <template slot-scope="scope">
-              <el-tag v-for="(item, index) in scope.row.tag" :key="index">{{ item[0].name }}</el-tag>
+              <el-tag v-for="(item, index) in scope.row.tag" :key="index">{{ item }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -138,13 +138,12 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="公开"
+            label="来源"
             width="80"
             show-overflow-tooltip
           >
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.open" type="success">{{ scope.row.open | openfilter }}</el-tag>
-              <el-tag v-else type="danger">{{ scope.row.open | openfilter }}</el-tag>
+              <span>{{ scope.row.source | sourcefilter }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -160,7 +159,7 @@
           </el-table-column>
           <el-table-column
             label="操作"
-            width="150"
+            width="100"
             show-overflow-tooltip
           >
             <template slot-scope="scope">
@@ -226,14 +225,14 @@
       width="30%"
       center
     >
-      <img :src="baseapi + thumb_img" alt="" style="display:block;margin: 0 auto;max-width:100%">
+      <img :src="thumb_img" alt="" style="display:block;margin: 0 auto;max-width:100%">
     </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves'
-import { getArticle } from '@/api/article'
+import { getArticle, fakeDelArticle, recoveryDelArticle, reallyDelArticle } from '@/api/article'
 import { getList } from '@/api/tag'
 export default {
   directives: {
@@ -241,13 +240,12 @@ export default {
   },
   data() {
     return {
-      baseapi: process.env.BASE_API,
       imgdialogVisible: false,
       thumb_img: '',
       loading: true,
       filterobj: {
         status: 1, // 1：全部， 2：已发布，3：草稿，4：回收站
-        cate: '',
+        category: '',
         tag: '',
         keywords: ''
       },
@@ -329,7 +327,7 @@ export default {
   methods: {
     clear() {
       this.filterobj.status = 1
-      this.filterobj.cate = ''
+      this.filterobj.category = ''
       this.filterobj.tag = ''
       this.filterobj.keywords = ''
     },
@@ -361,19 +359,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        ArticleApi.fakeDelArticle({ _id: id }).then((res) => {
-          if (res.data.code === 0) {
+        fakeDelArticle({ id }).then((res) => {
+          if (res.code === 200) {
             this.initArticleList()
             this.$notify({
               type: 'success',
               title: '成功',
-              message: res.data.message
+              message: res.message
             })
           } else {
             this.$notify({
               type: 'error',
               title: '失败',
-              message: res.data.message
+              message: res.message
             })
           }
         })
@@ -385,19 +383,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        ArticleApi.recoveryDelArticle({ _id: id }).then((res) => {
-          if (res.data.code === 0) {
+        recoveryDelArticle({ id }).then((res) => {
+          if (res.code === 200) {
             this.initArticleList()
             this.$notify({
               type: 'success',
               title: '成功',
-              message: res.data.message
+              message: res.message
             })
           } else {
             this.$notify({
               type: 'error',
               title: '失败',
-              message: res.data.message
+              message: res.message
             })
           }
         })
@@ -410,19 +408,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        ArticleApi.delArticle({ _id: id }).then((res) => {
-          if (res.data.code === 0) {
+        reallyDelArticle({ id }).then((res) => {
+          if (res.code === 200) {
             this.initArticleList()
             this.$notify({
               type: 'success',
               title: '成功',
-              message: res.data.message
+              message: res.message
             })
           } else {
             this.$notify({
               type: 'error',
               title: '失败',
-              message: res.data.message
+              message: res.message
             })
           }
         })

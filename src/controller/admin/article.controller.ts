@@ -14,22 +14,21 @@ export class ArticleController {
   @HttpCode(200)
   async save (@Body() req) {
     const res = await this.articleService.saveArticle(req)
-    if (res) {
-      return {
-        code: 200,
-        message: '文章添加成功'
+      if (res) {
+        return {
+          code: 200,
+          message: req.id ? '文章修改成功'  : '文章添加成功'
+        }
+      } else {
+        return {
+          code: 500,
+          message: req.id ? '文章修改失败'  :'文章添加失败'
+        }
       }
-    } else {
-      return {
-        code: 500,
-        message: '文章添加失败'
-      }
-    }
   }
 
   @Get('list')
   async getList (@Query() params) {
-    console.log(params)
     const res = await this.articleService.getArticle(params)
     if (params.id) {
       if (res) {
@@ -54,6 +53,54 @@ export class ArticleController {
           code: 500,
           message: '服务器异常'
         }
+      }
+    }
+  }
+
+  @Get('del')
+  async fakeDel (@Query() params) {
+    const res = await this.articleService.fakeDelArticle(params)
+    if (res) {
+      return {
+        code: 200,
+        message: '该记录已加入回收站'
+      }
+    } else {
+      return {
+        code: 500,
+        message: '服务器异常'
+      }
+    }
+  }
+
+  @Get('reallyDel')
+  async reallyDel (@Query() params) {
+    const res = await this.articleService.reallyDelArticle(params)
+    if (res) {
+      return {
+        code: 200,
+        message: '删除成功'
+      }
+    } else {
+      return {
+        code: 500,
+        message: '服务器异常'
+      }
+    }
+  }
+
+  @Get('recoveryDel')
+  async recoveryDel (@Query() params) {
+    const res = await this.articleService.recoveryDelArticle(params)
+    if (res) {
+      return {
+        code: 200,
+        message: '该记录已恢复'
+      }
+    } else {
+      return {
+        code: 500,
+        message: '服务器异常'
       }
     }
   }

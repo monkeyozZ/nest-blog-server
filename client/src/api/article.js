@@ -15,3 +15,27 @@ export function getArticle(params) {
     params
   })
 }
+
+export function fakeDelArticle(params) {
+  return request({
+    url: '/article/del',
+    method: 'get',
+    params
+  })
+}
+
+export function reallyDelArticle(params) {
+  return request({
+    url: '/article/reallyDel',
+    method: 'get',
+    params
+  })
+}
+
+export function recoveryDelArticle(params) {
+  return request({
+    url: '/article/recoveryDel',
+    method: 'get',
+    params
+  })
+}

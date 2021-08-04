@@ -47,48 +47,21 @@
               inactive-text="存为草稿"
             />
           </el-form-item>
-          <!-- <el-form-item label="文章内容：" prop="content" :inline-message="true">
-            <div class="content-box">
-              <mavon-editor v-model="Form.content" @imgAdd="imgAdd" @imgDel="imgDel" ref="md"/>
-            </div>
-          </el-form-item> -->
           <el-form-item label="缩略图：" prop="thumb_img" class="thumb_box">
             <el-upload
-              action="#"
-              list-type="picture-card"
-              :auto-upload="false"
-              :limit="1"
+              class="thumb-uploader"
+              :action="upLaodUrl"
+              :show-file-list="false"
+              :on-success="handleThumbSuccess"
             >
-              <i slot="default" class="el-icon-plus" />
-              <div slot="file" slot-scope="{file}">
-                <img
-                  class="el-upload-list__item-thumbnail"
-                  :src="file.url"
-                  alt=""
-                >
-                <span class="el-upload-list__item-actions">
-                  <span
-                    class="el-upload-list__item-preview"
-                    @click="handlePictureCardPreview(file)"
-                  >
-                    <i class="el-icon-zoom-in" />
-                  </span>
-                  <span
-                    v-if="!disabled"
-                    class="el-upload-list__item-delete"
-                    @click="handleDownload(file)"
-                  >
-                    <i class="el-icon-download" />
-                  </span>
-                  <span
-                    v-if="!disabled"
-                    class="el-upload-list__item-delete"
-                    @click="handleRemove(file)"
-                  >
-                    <i class="el-icon-delete" />
-                  </span>
-                </span>
+              <div v-if="Form.thumb">
+                <img :src="Form.thumb" class="thumb">
+                <p class="pancel">
+                  <i class="el-icon-zoom-in" @click.stop="handlePictureCardPreview" />
+                  <i class="el-icon-delete" @click.stop="handleRemove" />
+                </p>
               </div>
+              <i v-else class="el-icon-plus thumb-uploader-icon" />
             </el-upload>
             <el-dialog :visible.sync="dialogVisible">
               <img width="100%" :src="dialogImageUrl" alt="">
@@ -97,7 +70,7 @@
         </el-form>
       </el-col>
       <el-col class="md-box" :lg="23" :md="23" :sm="23" :xs="23">
-        <markdown-nice default-title="文章内容" />
+        <markdown-nice default-title="文章内容" :useImageHosting="useImageHosting" />
       </el-col>
       <el-col class="submit-box">
         <el-button type="primary" class="submit" icon="el-icon-arrow-up" @click="submit">发布文章</el-button>
@@ -108,8 +81,8 @@
 
 <script>
 import MarkdownNice from 'markdown-nice'
-import axios from 'axios'
 import { save } from '@/api/article'
+import { deleteImg } from '@/api/image'
 import { getList } from '@/api/tag'
 export default {
   components: {
@@ -169,7 +142,7 @@ export default {
         content: '',
         source: '0',
         status: true,
-        imageUrl: ''
+        thumb: ''
       },
       rules: {
         title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
@@ -183,7 +156,15 @@ export default {
       dialogVisible: false,
       content_img_arr: [],
       antDropdownDom: undefined,
-      positionTop: 0
+      positionTop: 0,
+      upLaodUrl: process.env.VUE_APP_UPLOAD_API,
+      useImageHosting: {
+        name: 'wowmonkey',
+        url: process.env.VUE_APP_UPLOAD_API,
+        isSmmsOpen: false,
+        isQiniuyunOpen: false,
+        isAliyunOpen: false
+      }
     }
   },
   mounted() {
@@ -212,57 +193,22 @@ export default {
       const headerHeight = document.querySelector('.fixed-header').clientHeight
       this.positionTop = mdOffHeight + headerHeight + 15
     },
-    imgAdd(pos, file) {
-      // console.log(file)
-      const formdata = new FormData()
-      formdata.append('image', file)
-      axios({
-        url: this.baseapi + '/article/contentimg',
-        method: 'post',
-        data: formdata,
-        headers: { 'Content-Type': 'multipart/form-data' }
-      }).then((res) => {
-        if (res.data.code === 0) {
-          const key = file.name
-          const obj = {}
-          obj[key] = res.data.imageUrl
-          this.content_img_arr.push(obj)
-          this.$refs.md.$img2Url(pos, this.baseapi + res.data.imageUrl)
-        }
-      })
-    },
-    imgDel(file) {
-      let delurl = ''
-      this.content_img_arr.map((item) => {
-        for (const k in item) {
-          if (file[0].name === k) {
-            // console.log(item[file[0].name])
-            delurl = item[file[0].name]
-          }
-        }
-      })
-
-      articleApi.delcontentimg(delurl).then((res) => {
-        if (res.data.code === 0) {
-          this.$notify({
-            type: 'success',
-            title: '成功',
-            message: res.data.message
-          })
-        }
-      })
-    },
     handleThumbSuccess(res, file) {
-      if (res.code === 0) {
-        this.Form.imageUrl = res.imageUrl
+      if (res.code === 200) {
+        this.Form.thumb = res.data
       }
     },
-    beforeThumbUpload(file) {
-      const isLt10M = file.size / 1024 / 1024 < 10
-      if (!isLt10M) {
-        this.$message.error('上传头像图片大小不能超过 10MB!')
+    handleRemove() {
+      const params = {
+        key: this.Form.thumb
       }
-      return isLt10M
+      deleteImg(params).then(res => {
+        this.Form.thumb = ''
+      })
+    },
+    handlePictureCardPreview(e) {
+      this.dialogImageUrl = this.Form.thumb
+      this.dialogVisible = true
     },
     getTagList() {
       getList().then((res) => {
@@ -297,19 +243,6 @@ export default {
     },
     submit() {
       this.saveArticle()
-      /* this.$refs.dataForm1.validate((valid) => {
-        if (valid) {
-          if (this.Form.imageUrl) {
-            this.saveArticle()
-          } else {
-            this.$notify({
-              type: 'warning',
-              title: '警告',
-              message: '请选择要上传的缩略图'
-            })
-          }
-        }
-      }) */
     }
   }
 }
@@ -344,32 +277,63 @@ export default {
       min-height: 480px;
       max-height: 650px;
     }
-    .thumb-uploader{
-      .el-upload-list__item-status-label{
-        display: block;
-        height: 27px;
-        top: -10px;
-        .el-icon-check{
-          color: #fff;
-        }
-      }
-      .thumb-uploader-icon{
-        font-size: 28px;
-        color: #8c939d;
-        width: 100%;
-        line-height: 150px;
-        text-align: center;
-      }
-      .thumb{
-        width: 210px;
-        height: 150px;
-        display: block;
-      }
-    }
     .submit{
       display: block;
       width: 80%;
       margin: 30px auto 20px auto;
+    }
+    /deep/.thumb-uploader{
+      position: relative;
+      display: inline-block;
+      .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .el-upload:hover {
+        border-color: #409EFF;
+      }
+      .pancel{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 9;
+        transition: opacity 0.3s;
+        opacity: 0;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        &:hover{
+          opacity: 1;
+          background: rgba(0,0,0,.5);
+        }
+        i{
+          font-size: 28px;
+          color: #fff;
+          &:first-child{
+            margin-right: 8px;
+          }
+          &:last-child{
+            margin-left: 8px;
+          }
+        }
+      }
+      .thumb-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+      }
+      .thumb{
+        width: 178px;
+        height: 178px;
+        display: block;
+      }
     }
   }
   .md-box{

@@ -98,7 +98,7 @@
               <el-input v-model="editForm.name" placeholder="标签名称" />
             </el-form-item>
             <el-form-item label="标签别名：" prop="alias" :inline-message="true">
-              <el-input v-model="editForm.alias" placeholder="标签别名（字母，下划线）" />
+              <el-input v-model="editForm.alias" :disabled="authEditAlias" placeholder="标签别名（字母，下划线）" />
             </el-form-item>
           </el-form>
           <el-button type="primary" class="submit" icon="el-icon-check" size="medium" @click="editsubmit">修改标签</el-button>
@@ -138,12 +138,13 @@ export default {
       },
       multipleSelection: [],
       listQuery: {
-        page: 1,
-        limit: 5
+        pageNum: 1,
+        pageSize: 5
       },
       total: null,
       dialogFormVisible: false,
-      id: ''
+      id: '',
+      authEditAlias: false
     }
   },
   mounted() {
@@ -154,11 +155,11 @@ export default {
       this.multipleSelection = val
     },
     handleSizeChange(val) {
-      this.listQuery.limit = val
+      this.listQuery.pageSize = val
       this.initTagList()
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val
+      this.listQuery.pageNum = val
       this.initTagList()
     },
     submit() {
@@ -222,6 +223,7 @@ export default {
         if (res.code === 200) {
           this.editForm.name = res.data.name
           this.editForm.alias = res.data.alias
+          this.authEditAlias = res.data.article_count !== 0
         }
       }).catch((err) => {
         console.log(err)

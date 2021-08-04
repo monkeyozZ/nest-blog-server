@@ -10,36 +10,25 @@
       </el-col>
       <el-col :lg="5" :md="9" :sm="24" :xs="24" class="form-right" :class="{resetBg: edit}">
         <el-form ref="dataForm2" :rules="rules" :model="Form" label-position="top" label-width="85px">
-          <el-form-item label="文章状态：" prop="status">
-            <el-switch
-              v-model="Form.status"
-              active-text="直接发布"
-              inactive-text="存为草稿"
-            />
-          </el-form-item>
           <el-form-item label="缩略图：" prop="thumb_img" class="thumb_box">
             <el-upload
               class="thumb-uploader"
-              :action="baseapi + '/time/thumbSave'"
-              :data="Form"
+              :action="upLaodUrl"
               :show-file-list="false"
               :on-success="handleThumbSuccess"
-              accept="image/*"
-              :before-upload="beforeThumbUpload"
             >
-              <div v-if="Form.imageUrl" class="el-upload-list--picture-card">
-                <img :src="baseapi + Form.imageUrl" class="thumb">
-                <label class="el-upload-list__item-status-label">
-                  <i class="el-icon-upload-success el-icon-check" />
-                </label>
-                <span class="el-upload-list__item-actions">
-                  <span class="el-upload-list__item-preview">
-                    <i class="el-icon-refresh" style="font-size:14px">重选</i>
-                  </span>
-                </span>
+              <div v-if="Form.imageUrl">
+                <img :src="Form.imageUrl" class="thumb">
+                <p class="pancel">
+                  <i class="el-icon-zoom-in" @click.stop="handlePictureCardPreview" />
+                  <i class="el-icon-delete" @click.stop="handleRemove" />
+                </p>
               </div>
               <i v-else class="el-icon-plus thumb-uploader-icon" />
             </el-upload>
+            <el-dialog :visible.sync="dialogVisible">
+              <img width="100%" :src="dialogImageUrl" alt="">
+            </el-dialog>
           </el-form-item>
         </el-form>
         <el-button v-if="!edit" type="primary" class="submit" icon="el-icon-arrow-up" @click="submit">发布一下...Biu</el-button>
@@ -50,15 +39,15 @@
 </template>
 
 <script>
-// import axios from 'axios'
-// import timeApi from '@/api/time'
+import { deleteImg } from '@/api/image'
+import { addTimeLine } from '@/api/time'
 export default {
   props: {
     edit: {
       type: Boolean,
       default: false
     },
-    editArr: {
+    timeObj: {
       type: Object,
       default: () => {}
     },
@@ -72,60 +61,54 @@ export default {
       baseapi: process.env.BASE_API,
       Form: {
         content: '',
-        status: true,
         imageUrl: ''
       },
       rules: {
         content: [{ required: true, message: '输入想说的吧', trigger: 'blur' }]
       },
       dialogImageUrl: '',
-      dialogVisible: false
+      dialogVisible: false,
+      upLaodUrl: process.env.VUE_APP_UPLOAD_API
     }
   },
   watch: {
-    editArr: {
+    timeObj: {
       handler() {
-        const { title, keywords, des, category, tag, content, origin, status, open, imageUrl } = this.editArr
-        this.Form.title = title
-        this.Form.keywords = keywords
-        this.Form.des = des
-        this.Form.category = category
-        this.Form.tag = tag
+        const { content, imageUrl } = this.timeObj
         this.Form.content = content
-        this.Form.origin = origin
-        this.Form.status = status
-        this.Form.open = open
         this.Form.imageUrl = imageUrl
       }
     }
   },
   mounted() {
-    // this.refresh()
   },
   methods: {
-    refresh() {
-      // 页面刷新和关闭提醒事件
-      window.onbeforeunload = function() {
-        return '请确认信息是否已保存！'
-      }
-    },
     handleThumbSuccess(res, file) {
-      if (res.code === 0) {
-        this.Form.imageUrl = res.imageUrl
+      if (res.code === 200) {
+        this.Form.imageUrl = res.data
       }
     },
-    beforeThumbUpload(file) {
-      const isLt10M = file.size / 1024 / 1024 < 10
-      if (!isLt10M) {
-        this.$message.error('上传头像图片大小不能超过 10MB!')
+    handleRemove() {
+      const params = {
+        key: this.Form.imageUrl
       }
-      return isLt10M
+      deleteImg(params).then(res => {
+        this.Form.imageUrl = ''
+      })
+    },
+    handlePictureCardPreview(e) {
+      this.dialogImageUrl = this.Form.imageUrl
+      this.dialogVisible = true
     },
     editArticle() {
       this.$refs.dataForm1.validate((valid) => {
         if (valid) {
-          timeApi.editOneTime(this.editId, this.Form).then((res) => {
-            if (res.data.code === 0) {
+          const obj = {
+            id: this.editId,
+            ...this.Form
+          }
+          addTimeLine(obj).then((res) => {
+            if (res.code === 200) {
               this.$emit('changeEditdialogVisible')
               this.$notify({
                 type: 'success',
@@ -140,16 +123,16 @@ export default {
     submit() {
       this.$refs.dataForm1.validate((valid) => {
         if (valid) {
-          timeApi.insert(JSON.stringify(this.Form)).then((res) => {
-            if (res.data.code === 0) {
+          addTimeLine(this.Form).then((res) => {
+            if (res.code === 200) {
               this.$notify({
                 type: 'success',
                 title: '成功',
-                message: '文章添加成功'
+                message: res.message
               })
               /* this.$refs.dataForm1.resetFields() // 重置表单
               this.Form.imageUrl = '' */
-              this.$router.push('/article/index')
+              this.$router.push('/timeline/index')
             }
           }).catch((err) => {
             this.$notify({
@@ -207,27 +190,57 @@ export default {
       border: 1px solid #ddd;
       border-radius: 5px;
     }
-    .thumb-uploader{
-      .el-upload-list__item-status-label{
-        display: block;
-        height: 27px;
-        top: -10px;
-        .el-icon-check{
+    /deep/.thumb-uploader{
+      position: relative;
+      display: inline-block;
+      .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .el-upload:hover {
+        border-color: #409EFF;
+      }
+      .pancel{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 9;
+        transition: opacity 0.3s;
+        opacity: 0;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        &:hover{
+          opacity: 1;
+          background: rgba(0,0,0,.5);
+        }
+        i{
+          font-size: 28px;
           color: #fff;
+          &:first-child{
+            margin-right: 8px;
+          }
+          &:last-child{
+            margin-left: 8px;
+          }
         }
       }
-      .thumb-uploader-icon{
+      .thumb-uploader-icon {
         font-size: 28px;
         color: #8c939d;
-        width: 100%;
-        line-height: 150px;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
         text-align: center;
       }
       .thumb{
-        display: inline-block;
-        max-width: 100%;
-        width: 100%;
-        height: 150px;
+        width: 178px;
+        height: 178px;
+        display: block;
       }
     }
     .submit{
