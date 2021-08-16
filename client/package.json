@@ -15,7 +15,7 @@
     "element-ui": "^2.13.1",
     "file-saver": "^2.0.2",
     "js-cookie": "2.2.0",
-    "markdown-nice": "^1.8.15",
+    "markdown-nice": "^1.8.22",
     "marked": "^1.1.1",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
