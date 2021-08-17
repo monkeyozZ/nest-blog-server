@@ -57,7 +57,8 @@ export const constantRoutes = [
   {
     path: '/article',
     component: Layout,
-    meta: { icon: 'pen', title: '文章管理', hidden: false },
+    // con: 'pen'
+    meta: { icon: 'dashboard', title: '文章管理', hidden: false },
     children: [
       {
         path: 'index',
@@ -89,7 +90,8 @@ export const constantRoutes = [
   {
     path: '/comment',
     component: Layout,
-    meta: { icon: 'comment', title: '评论管理', hidden: false },
+    // icon: 'comment'
+    meta: { icon: 'dashboard', title: '评论管理', hidden: false },
     children: [
       {
         path: 'index',
@@ -102,7 +104,8 @@ export const constantRoutes = [
   {
     path: '/timeline',
     component: Layout,
-    meta: { icon: 'time', title: '时间轴', hidden: false },
+    // icon: 'time'
+    meta: { icon: 'dashboard', title: '时间轴', hidden: false },
     children: [
       {
         path: 'index',

@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import MarkdownNice from 'markdown-nice'
+import MarkdownNice from 'mk-nice'
 import { save, getArticle } from '@/api/article'
 import { deleteImg } from '@/api/image'
 import { getList } from '@/api/tag'
