@@ -70,7 +70,7 @@
         </el-form>
       </el-col>
       <el-col class="md-box" :lg="23" :md="23" :sm="23" :xs="23">
-        <markdown-nice default-title="文章内容" :useImageHosting="useImageHosting" />
+          <markdown-nice default-title="文章内容" :useImageHosting="useImageHosting" />
       </el-col>
       <el-col class="submit-box">
         <el-button type="primary" class="submit" icon="el-icon-arrow-up" @click="submit">发布文章</el-button>
@@ -85,6 +85,7 @@ import { save } from '@/api/article'
 import { deleteImg } from '@/api/image'
 import { getList } from '@/api/tag'
 export default {
+  name: 'articleSave',
   components: {
     MarkdownNice
   },
@@ -189,9 +190,12 @@ export default {
     initMdniceNav() {
       document.querySelector('.nice-app').style.position = 'relative'
       document.querySelector('.nice-footer-container').style.position = 'absolute'
+      // const obj = document.querySelector('.nice-app').getBoundingClientRect()
+      // console.log(obj)
       const mdOffHeight = document.querySelector('.nice-app').offsetTop
       const headerHeight = document.querySelector('.fixed-header').clientHeight
       this.positionTop = mdOffHeight + headerHeight + 15
+      // this.positionTop = obj.top
     },
     handleThumbSuccess(res, file) {
       if (res.code === 200) {

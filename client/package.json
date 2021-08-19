@@ -15,7 +15,7 @@
     "element-ui": "^2.13.1",
     "file-saver": "^2.0.2",
     "js-cookie": "2.2.0",
-    "mk-nice": "1.0.1",
+    "mk-nice": "1.0.4",
     "marked": "^1.1.1",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
