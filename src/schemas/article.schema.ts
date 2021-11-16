@@ -17,8 +17,8 @@ export class Article extends Document {
   @Prop()
   tag: [] // 文章标签
 
-  @Prop()
-  source: string // 文章来源
+  @Prop({ default: 0 })
+  source: number // 文章来源
 
   @Prop()
   status: boolean // 文章状态

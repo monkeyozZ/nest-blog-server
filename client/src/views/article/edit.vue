@@ -119,15 +119,15 @@ export default {
       origin: [
         {
           label: '原创',
-          value: '0'
+          value: 0
         },
         {
           label: '转载',
-          value: '1'
+          value: 1
         },
         {
           label: '混合',
-          value: '2'
+          value: 2
         }
 
       ],

@@ -114,13 +114,13 @@ const statusfilter = (status) => {
 const sourcefilter = (n) => {
   let text = ''
   switch (n) {
-    case '0':
+    case 0:
       text = '原创'
       break
-    case '1':
+    case 1:
       text = '转载'
       break
-    case '2':
+    case 2:
       text = '混合'
       break
   }
