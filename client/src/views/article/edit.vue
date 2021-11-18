@@ -139,7 +139,7 @@ export default {
         tag: [],
         content: '',
         contentText: '',
-        source: '0',
+        source: 0,
         status: true,
         thumb: ''
       },

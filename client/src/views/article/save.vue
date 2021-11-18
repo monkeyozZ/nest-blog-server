@@ -141,7 +141,7 @@ export default {
         category: [],
         tag: [],
         content: '',
-        source: '0',
+        source: 0,
         status: true,
         thumb: ''
       },

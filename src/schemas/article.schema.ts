@@ -42,7 +42,7 @@ export class Article extends Document {
   recovery: boolean // 文章假删除
 
   @Prop({ default: Date.now }) // 文章创建时间
-  creatTime: Date
+  creatTime: string
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);
