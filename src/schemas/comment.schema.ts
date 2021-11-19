@@ -24,7 +24,7 @@ export class Comment extends Document {
   like: number // 假删除
 
   @Prop({ default: Date.now }) // 评论创建时间
-  creatTime: Date
+  creatTime: string
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

@@ -10,7 +10,7 @@ export class Tag extends Document {
   alias: string
 
   @Prop({ default: Date.now })
-  creat_time: Date;
+  creat_time: string;
 
 }
 

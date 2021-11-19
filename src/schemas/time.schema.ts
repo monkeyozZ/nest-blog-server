@@ -16,7 +16,7 @@ export class Time extends Document {
   recovery: boolean
 
   @Prop({ default: Date.now })
-  createTime: Date;
+  createTime: string;
 
 }
 
