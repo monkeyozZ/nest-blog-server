@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import MarkdownNice from 'mk-nice'
+import MarkdownNice from 'mk-md-nice'
 import { save } from '@/api/article'
 import { deleteImg } from '@/api/image'
 import { getList } from '@/api/tag'
@@ -141,6 +141,7 @@ export default {
         category: [],
         tag: [],
         content: '',
+        contentText: '',
         source: 0,
         status: true,
         thumb: ''
@@ -226,7 +227,7 @@ export default {
     },
     saveArticle() {
       this.Form.content = document.querySelector('#nice').innerHTML
-      this.Form.contentText = document.querySelector('#nice').innerText
+      this.Form.contentText = document.querySelector('.nice-text-container').innerText
       save(this.Form).then((res) => {
         if (res.code === 200) {
           this.$notify({
@@ -234,6 +235,7 @@ export default {
             title: '成功',
             message: '文章添加成功'
           })
+          localStorage.setItem('content', '')
           this.$router.push('/article/index')
         }
       }).catch((err) => {

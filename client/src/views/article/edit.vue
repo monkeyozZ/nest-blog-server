@@ -70,7 +70,7 @@
         </el-form>
       </el-col>
       <el-col class="md-box">
-        <markdown-nice default-title="文章内容" :default-text="Form.contentText" :useImageHosting="useImageHosting" />
+        <markdown-nice v-if="contentText" defaultTitle="文章内容" :defaultText="contentText" :useImageHosting="useImageHosting" />
       </el-col>
       <el-col class="submit-box">
         <el-button type="primary" class="submit" icon="el-icon-check" @click="editArticle">保存修改</el-button>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import MarkdownNice from 'mk-nice'
+import MarkdownNice from 'mk-md-nice'
 import { save, getArticle } from '@/api/article'
 import { deleteImg } from '@/api/image'
 import { getList } from '@/api/tag'
@@ -143,6 +143,7 @@ export default {
         status: true,
         thumb: ''
       },
+      contentText: '',
       rules: {
         title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
         keywords: [{ required: true, message: '请输入文章关键词', trigger: 'blur' }],
@@ -176,16 +177,18 @@ export default {
         this.Form.desc = desc
         this.Form.category = category
         this.Form.tag = tagAlias
-        this.Form.contentText = contentText
         this.Form.source = source
         this.Form.status = status
         this.Form.thumb = thumb
+        this.contentText = contentText
       }
     }
   },
   mounted() {
     this.getDetailById()
     this.getTagList()
+  },
+  updated() {
     const mdNav = document.querySelector('.nice-left-nav')
     mdNav.addEventListener('click', () => {
       setTimeout(() => {
@@ -200,7 +203,6 @@ export default {
         }
       }, 16)
     })
-    // console.log(this.$refs.md)
   },
   methods: {
     initMdniceNav() {
@@ -258,7 +260,7 @@ export default {
         }
       }) */
       this.Form.content = document.querySelector('#nice').innerHTML
-      this.Form.contentText = document.querySelector('#nice').innerText
+      this.Form.contentText = document.querySelector('.nice-text-container').innerText
       const obj = {
         id: this.$route.query.id,
         ...this.Form
