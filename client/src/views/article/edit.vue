@@ -70,7 +70,7 @@
         </el-form>
       </el-col>
       <el-col class="md-box">
-        <markdown-nice v-if="contentText" defaultTitle="文章内容" :defaultText="contentText" :useImageHosting="useImageHosting" />
+        <markdown-nice v-if="contentText" defaultTitle="文章内容" :defaultText="contentText" :useImageHosting="useImageHosting" @onTextChange="contentTextChange" />
       </el-col>
       <el-col class="submit-box">
         <el-button type="primary" class="submit" icon="el-icon-check" @click="editArticle">保存修改</el-button>
@@ -260,7 +260,9 @@ export default {
         }
       }) */
       this.Form.content = document.querySelector('#nice').innerHTML
-      this.Form.contentText = document.querySelector('.nice-text-container').innerText
+      // this.Form.contentText = document.querySelector('.nice-text-container').innerText
+      // console.log(this.$refs.md)
+      // debugger
       const obj = {
         id: this.$route.query.id,
         ...this.Form
@@ -275,6 +277,9 @@ export default {
           this.$router.push('/article/index')
         }
       })
+    },
+    contentTextChange(text) {
+      this.Form.contentText = text
     },
     getTagList() {
       getList().then((res) => {

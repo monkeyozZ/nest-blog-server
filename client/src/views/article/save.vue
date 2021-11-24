@@ -70,7 +70,7 @@
         </el-form>
       </el-col>
       <el-col class="md-box" :lg="23" :md="23" :sm="23" :xs="23">
-          <markdown-nice default-title="文章内容" :useImageHosting="useImageHosting" />
+          <markdown-nice default-title="文章内容" :useImageHosting="useImageHosting" @onTextChange="contentTextChange" />
       </el-col>
       <el-col class="submit-box">
         <el-button type="primary" class="submit" icon="el-icon-arrow-up" @click="submit">发布文章</el-button>
@@ -225,9 +225,12 @@ export default {
         }
       })
     },
+    contentTextChange(text) {
+      this.Form.contentText = text
+    },
     saveArticle() {
       this.Form.content = document.querySelector('#nice').innerHTML
-      this.Form.contentText = document.querySelector('.nice-text-container').innerText
+      // this.Form.contentText = document.querySelector('.nice-text-container').innerText
       save(this.Form).then((res) => {
         if (res.code === 200) {
           this.$notify({
